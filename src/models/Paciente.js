@@ -13,6 +13,11 @@ const pacienteSchema = new Schema({
         require:true,
         trim:true
     },
+    edad:{
+        type:String,
+        require:true,
+        trim:true
+    },
     direccion:{
         type:String,
         trim:true,
@@ -27,7 +32,7 @@ const pacienteSchema = new Schema({
         type:String,
         require:true,
         trim:true,
-				unique:true
+		unique:true
     },
     password:{
         type:String,

@@ -1,4 +1,3 @@
-
 import nodemailer from "nodemailer"
 import dotenv from 'dotenv'
 dotenv.config()
@@ -18,7 +17,7 @@ const sendMailToRegister = (userMail, token) => {
 
    
     let mailOptions = {
-        from: `Saludify@gmail.com`, 
+        from: `saludify@gmail.com`, 
         to: userMail,
         subject: "Bienvenido a Saludify 🍎🏋️",
         html: `
@@ -60,4 +59,42 @@ const sendMailToRegister = (userMail, token) => {
     })
 }
 
-export default sendMailToRegister
+const sendMailToRecoveryPassword = async(userMail,token)=>{
+    let info = await transporter.sendMail({
+    from: 'saludify@gmail.com',
+    to: userMail,
+    subject: "Restablece tu contraseña en Saludify 🍏",
+    html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #2e7d32;">Saludify - Recuperación de contraseña</h1>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            <p>Hemos recibido una solicitud para restablecer tu contraseña.</p>
+            <p>Por favor haz clic en el siguiente enlace para continuar:</p>
+                    
+            <a href="${process.env.URL_BACKEND}recuperar-password/${token}" 
+            style="display: inline-block; padding: 10px 20px; background-color: #2e7d32; color: white; text-decoration: none; border-radius: 5px; margin: 15px 0;">
+            Restablecer contraseña
+            </a>
+                    
+            <p>Si no solicitaste este cambio, por favor ignora este mensaje.</p>
+                    
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                    
+            <footer style="color: #666; font-size: 14px;">
+            <p>El equipo de Saludify</p>
+            <p>¡Tu salud es nuestra prioridad!</p>
+            </footer>
+        </div>
+    `
+    });
+    console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
+    
+}
+
+
+
+export {
+    sendMailToRegister,
+    sendMailToRecoveryPassword
+}
+
