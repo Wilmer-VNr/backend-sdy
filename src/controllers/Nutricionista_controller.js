@@ -77,6 +77,8 @@ const actualizarPerfil = async (req,res)=>{
     res.status(200).json(nutricionistaBDD)
 }
 
+
+
 export {
  
     recuperarPassword,

@@ -1,11 +1,11 @@
 import {Router} from 'express'
-import { actualizarPassword, actualizarPerfil, comprobarTokenPasword, confirmarMail, crearNuevoPassword, login, perfil, recuperarPassword, registro } from '../controllers/Paciente_controller.js'
+import { actualizarPassword, actualizarPerfil, comprobarTokenPasword, confirmarMail, crearNuevoPassword, detallePaciente, eliminarPaciente, listarPacientes, login, perfil, recuperarPassword, registro } from '../controllers/Paciente_controller.js'
 import { verificarTokenJWT } from '../middlewares/JWT.js'
 const router = Router()
 
 
 // Rutas para registrar usuario
-router.post('/registro', registro)
+router.post('/registro', verificarTokenJWT,registro)
 router.get('/confirmar/:token',confirmarMail)
 
 //Rutas para recuperar contraseña
@@ -20,7 +20,9 @@ router.post('/login', login)
 
 router.get('/perfil', verificarTokenJWT, perfil)
 router.put('/paciente/:id',verificarTokenJWT,actualizarPerfil)
-
+router.get('/listar-pacientes',verificarTokenJWT,listarPacientes)
+router.get('/detalle-paciente/:id', verificarTokenJWT,detallePaciente)
+router.delete('/eliminar-paciente/:id',verificarTokenJWT,eliminarPaciente)
 router.put('/paciente/actualizar-password/:id',verificarTokenJWT,actualizarPassword)
 
 export default router

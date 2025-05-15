@@ -177,13 +177,13 @@ const verificarTokenJWT = async (req, res, next) => {
             const user = await Nutricionista.findById(id).lean().select("-password");
             if (!user) return res.status(404).json({ msg: "Nutricionista no encontrado" });
             req.nutricionistaBDD = user;
-            req.user = { id, rol }; // <-- agrega esto
+            req.user = { id, rol }; 
             next();
         } else if (rol === "paciente") {
             const user = await Paciente.findById(id).lean().select("-password");
             if (!user) return res.status(404).json({ msg: "Paciente no encontrado" });
             req.pacienteBDD = user;
-            req.user = { id, rol }; // <-- agrega esto
+            req.user = { id, rol };
             next();
         }
         
