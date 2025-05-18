@@ -57,7 +57,19 @@ const pacienteSchema = new Schema({
     nutricionista:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'Nutricionista'
-    }
+    },
+    parametros:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'Parametro'
+        }
+    ],
+    comidas:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'Comida'
+        }
+    ]
 
 },{
     timestamps:true

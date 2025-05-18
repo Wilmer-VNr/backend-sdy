@@ -3,7 +3,7 @@ import Nutricionista from "../models/Nutricionista.js"
 import {sendMailToRecoveryPassword } from "../config/nodemailer.js"
 import { crearTokenJWT } from "../middlewares/JWT.js"
 import mongoose from "mongoose"
-
+import Paciente from "../models/Paciente.js";
 
 const recuperarPassword = async(req,res)=>{
     const {email} = req.body
@@ -50,6 +50,142 @@ const perfil =(req,res)=>{
     res.status(200).json(req.nutricionistaBDD)
 }
 
+const listarTodosLosPacientes = async (req, res) => {
+    try {
+        // Verificar que el usuario es nutricionista (el middleware JWT ya lo hizo)
+        if (req.user.rol !== "nutricionista") {
+            return res.status(403).json({
+                success: false,
+                msg: "No autorizado. Solo nutricionistas pueden acceder a esta función"
+            });
+        }
+
+        // Buscar todos los pacientes activos, con información básica
+        const pacientes = await Paciente.find({ estado: true })
+            .select("-password -token -__v -createdAt -updatedAt")
+            .lean();
+
+        res.status(200).json({
+            success: true,
+            count: pacientes.length,
+            pacientes
+        });
+
+    } catch (error) {
+        console.error("Error al listar pacientes:", error);
+        res.status(500).json({
+            success: false,
+            msg: "Error al obtener los pacientes",
+            error: process.env.NODE_ENV === "development" ? error.message : undefined
+        });
+    }
+};
+
+
+const obtenerPacientePorId = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Verificar que el usuario es nutricionista
+        if (req.user.rol !== "nutricionista") {
+            return res.status(403).json({
+                success: false,
+                msg: "No autorizado. Solo nutricionistas pueden acceder a esta función"
+            });
+        }
+
+        // Validar el ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                msg: "ID de paciente no válido"
+            });
+        }
+
+        // Buscar paciente por ID, excluyendo datos sensibles
+        const paciente = await Paciente.findById(id)
+            .select("-password -token -__v -createdAt -updatedAt")
+            .lean();
+
+        if (!paciente) {
+            return res.status(404).json({
+                success: false,
+                msg: "Paciente no encontrado"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            paciente
+        });
+
+    } catch (error) {
+        console.error("Error al buscar paciente por ID:", error);
+        res.status(500).json({
+            success: false,
+            msg: "Error al obtener el paciente",
+            error: process.env.NODE_ENV === "development" ? error.message : undefined
+        });
+    }
+};
+
+const eliminarPaciente = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // 1. Verificar permisos (solo nutricionistas)
+        if (req.user.rol !== "nutricionista") {
+            return res.status(403).json({
+                success: false,
+                msg: "Acceso denegado. Requiere rol de nutricionista"
+            });
+        }
+
+        // 2. Validar el ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                msg: "ID de paciente no válido"
+            });
+        }
+
+        // 3. Verificar si el paciente existe y está activo
+        const pacienteExistente = await Paciente.findOne({
+            _id: id,
+            status: true
+        });
+
+        if (!pacienteExistente) {
+            return res.status(404).json({
+                success: false,
+                msg: "Paciente no encontrado"
+            });
+        }
+
+        // 4. Actualizar el status a false (borrado lógico)
+        const pacienteActualizado = await Paciente.findByIdAndUpdate(
+            id,
+            { status: false },
+            { new: true, select: "-password -token -__v -createdAt -updatedAt" }
+        );
+
+        // 5. Responder con el resultado
+        res.status(200).json({
+            success: true,
+            msg: "Paciente eliminado correctamente",
+            paciente: pacienteActualizado
+        });
+
+    } catch (error) {
+        console.error("Error al eliminar paciente:", error);
+        res.status(500).json({
+            success: false,
+            msg: "Error interno al eliminar paciente",
+            error: process.env.NODE_ENV === "development" ? error.message : undefined
+        });
+    }
+};
+
 
 const actualizarPerfil = async (req,res)=>{
     const {id} = req.params
@@ -77,15 +213,16 @@ const actualizarPerfil = async (req,res)=>{
     res.status(200).json(nutricionistaBDD)
 }
 
-
-
 export {
  
     recuperarPassword,
     comprobarTokenPasword,
     crearNuevoPassword,
     perfil,
-    actualizarPerfil
+    actualizarPerfil,
+    listarTodosLosPacientes,
+    obtenerPacientePorId,
+    eliminarPaciente
 }
 
 

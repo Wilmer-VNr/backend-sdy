@@ -4,6 +4,10 @@ import dotenv from 'dotenv'
 import cors from 'cors';
 import routerPacientes from './routers/Paciente_routes.js'
 import routerNutricionista from './routers/Nutricionista_routes.js'
+import authRoutes from './routers/Auth_routes.js';
+import router from './routers/Paciente_routes.js';
+import routerComidas from './routers/comida_routes.js';
+import routerParametrosSalud from './routers/parametrosSalud_routes.js';
 
 // Inicializaciones
 const app = express()
@@ -21,14 +25,18 @@ app.use(express.json())
 app.get('/',(req,res)=>{
     res.send("Server on")
 })
-app.use((req, res, next) => {
-  console.log(`Solicitud recibida: ${req.method} ${req.url}`)
-  next()
-})
 
-// Rutas para pacientes
+// Rutas
+app.use('/api',authRoutes)
 app.use('/api',routerPacientes)
 app.use('/api', routerNutricionista)
+app.use('/api', routerComidas)
+// Rutas para parametros de salud
+app.use('/api', routerParametrosSalud)
+
+// Rutas para comidas de pacientes
+app.use('/api', routerComidas)
+
 // Manejo de una ruta que no sea encontrada
 app.use((req,res)=>res.status(404).send("Endpoint no encontrado - 404"))
 

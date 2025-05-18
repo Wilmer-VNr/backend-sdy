@@ -1,3 +1,3 @@
 .env
 node_modules
-src/controllers/registrar_nutricionista.js
+src/controller/registrar_nutricionista.js
