@@ -1,11 +1,12 @@
 import {Router} from 'express'
 import { actualizarPassword, actualizarPerfil, comprobarTokenPasword, confirmarMail, crearNuevoPassword, detalleComidasPaciente, detalleParametrosPaciente, perfil, recuperarPassword, registro } from '../controllers/Paciente_controller.js'
 import { verificarTokenJWT } from '../middlewares/JWT.js'
+import { validacionPaciente } from '../middlewares/validacionPaciente.js'
 const router = Router()
 
 
 // Rutas para registrar usuario
-router.post('/registro', registro)
+router.post('/registro', validacionPaciente, registro)
 router.get('/confirmar/:token',confirmarMail)
 
 //Rutas para recuperar contraseña
