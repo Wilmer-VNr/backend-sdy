@@ -15,7 +15,7 @@ export const validacionComida = [
             .withMessage('El campo "descripcion" es obligatorio')
         .isString()
             .withMessage('El campo "descripcion" debe ser texto')
-        .isLength({ min: 10, max: 200 })
+        .isLength({ min: 4, max: 200 })
             .withMessage('La "descripcion" debe tener entre 10 y 200 caracteres')
         .customSanitizer(value => value.trim()),
 

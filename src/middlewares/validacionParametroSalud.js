@@ -20,7 +20,7 @@ export const validacionParametroSalud = [
     check("nivelActividadFisica")
         .exists({ checkNull: true, checkFalsy: true })
             .withMessage('El campo "nivelActividadFisica" es obligatorio')
-        .isIn(['Sedentario', 'Ligero', 'Moderado', 'Intenso', 'Muy intenso'])
+        .isIn(['Bajo', 'Moderado', 'Alto'])
             .withMessage('El "nivelActividadFisica" debe ser uno de: Sedentario, Ligero, Moderado, Intenso, Muy intenso'),
 
     // Enfermedades comunes (se valida como texto opcional, se podría validar con listas predefinidas en el futuro)
