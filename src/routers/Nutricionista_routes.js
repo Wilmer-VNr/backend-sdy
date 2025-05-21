@@ -13,7 +13,7 @@ router.post('/nuevo-password/:token',crearNuevoPassword)
 
 // Ruta para ver perfil del paciente
 
-router.get('/perfilNutri', verificarTokenJWT, perfil)
+router.get('/perfil', verificarTokenJWT, perfil)
 router.put('/perfil-nutricionista/:id',verificarTokenJWT,actualizarPerfil)
 
 // Nuevas rutas para gestión de pacientes por nutricionistas
