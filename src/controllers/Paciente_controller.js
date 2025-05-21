@@ -143,11 +143,9 @@ const detalleParametrosPaciente = async(req,res)=>{
     if( !mongoose.Types.ObjectId.isValid(id) ) return res.status(404).json({msg:`Lo sentimos, no existe el paciente ${id}`});
     const paciente = await Paciente.findById(id).select("-createdAt -updatedAt -__v")
     const parametros = await ParametrosSalud.find().where('paciente').equals(id)
-    const comidas= await Comida.find().where('paciente').equals(id)
     res.status(200).json({
         paciente,
         parametros,
-        comidas,
     })
 }
 
