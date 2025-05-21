@@ -8,7 +8,7 @@ const router = Router()
 router.post('/comidas-paciente/registro',verificarTokenJWT,validacionComida,registrarComidas)
 router.get('/ver-comida/:id',verificarTokenJWT,verComidaPacienteId)
 router.delete('/eliminar-comida/:id',verificarTokenJWT,eliminarComidas)
-router.put('/actualizar-comida/',verificarTokenJWT,actualizarComida)
+router.put('/actualizar-comida/:id',verificarTokenJWT,actualizarComida)
 
 
 
