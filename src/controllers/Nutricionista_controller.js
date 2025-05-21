@@ -213,6 +213,16 @@ const actualizarPerfil = async (req,res)=>{
     res.status(200).json(nutricionistaBDD)
 }
 
+const actualizarPassword = async (req,res)=>{
+    const nutricionistaBDD = await Nutricionista.findById(req.nutricionistaBDD._id)
+    if(!nutricionistaBDD) return res.status(404).json({msg:`Lo sentimos, no existe el paciente ${id}`})
+    const verificarPassword = await nutricionistaBDD.matchPassword(req.body.passwordactual)
+    if(!verificarPassword) return res.status(404).json({msg:"Lo sentimos, el password actual no es el correcto"})
+    nutricionistaBDD.password = await nutricionistaBDD.encrypPassword(req.body.passwordnuevo)
+    await nutricionistaBDD.save()
+    res.status(200).json({msg:"Password actualizado correctamente"})
+}
+
 export {
  
     recuperarPassword,
@@ -220,6 +230,7 @@ export {
     crearNuevoPassword,
     perfil,
     actualizarPerfil,
+    actualizarPassword,
     listarTodosLosPacientes,
     obtenerPacientePorId,
     eliminarPaciente
