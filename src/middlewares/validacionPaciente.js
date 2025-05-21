@@ -52,8 +52,8 @@ export const validacionPaciente = [
             .withMessage('Debe contener al menos una mayúscula')
         .matches(/(?=.*\d)/)
             .withMessage('Debe contener al menos un número')
-        .matches(/(?=.*[@$!%*?&])/)
-            .withMessage('Debe contener al menos un carácter especial (@$!%*?&)'),
+        .matches(/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/)
+            .withMessage('Debe contener al menos un carácter especial (como !@#$%^&*()_+{}[]:;<>,.?~)'),
 
     check("nutricionista")
         .optional()
