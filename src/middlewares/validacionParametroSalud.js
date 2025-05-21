@@ -13,7 +13,7 @@ export const validacionParametroSalud = [
     check("estatura")
         .exists({ checkNull: true, checkFalsy: true })
             .withMessage('El campo "estatura" es obligatorio')
-        .isFloat({ min: 1.2, max: 2.5 })
+        .isFloat({ min: 120, max: 250})
             .withMessage('La "estatura" debe estar entre 1.20 m y 2.50 m'),
 
     // Nivel de actividad física (valores clínicamente relevantes)

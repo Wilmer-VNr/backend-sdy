@@ -8,7 +8,7 @@ const router = Router()
 router.post('/parametros-salud/registro',verificarTokenJWT,validacionParametroSalud,registrarParametroSalud)
 router.get('/ver-parametro/:id',verificarTokenJWT,verParametroId)
 router.delete('/eliminar-parametro/:id',verificarTokenJWT,eliminarParametro)
-router.put('/actualizar-parametro/:id',verificarTokenJWT,actualizarParametro)
+router.put('/actualizar-parametro/:id',verificarTokenJWT,validacionParametroSalud,actualizarParametro)
 
 
 export default router
