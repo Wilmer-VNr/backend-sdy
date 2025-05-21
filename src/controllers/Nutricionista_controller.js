@@ -104,7 +104,7 @@ const obtenerPacientePorId = async (req, res) => {
 
         // Buscar paciente por ID, excluyendo datos sensibles
         const paciente = await Paciente.findById(id)
-            .select("-password -token -__v -createdAt -updatedAt")
+            .select("-password -token -__v -updatedAt")
             .lean();
 
         if (!paciente) {
