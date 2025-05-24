@@ -11,33 +11,35 @@ const openai = new OpenAI({
     apiBaseUrl: process.env.OPENAI_API_BASE_URL,
 });
 
-// Contar cuántas recomendaciones existen hoy para un paciente y tipo
-const contarRecomendacionesHoy = async (pacienteId, tipo) => {
-    const hoy = new Date().toISOString().split("T")[0];
-    const desde = new Date(`${hoy}T00:00:00Z`);
-    const hasta = new Date(`${hoy}T23:59:59Z`);
-
-    return await Recomendaciones.countDocuments({
+// Función para verificar si ya existe una recomendación para hoy
+const existeRecomendacionHoy = async (pacienteId, tipo) => {
+    const hoy = new Date().toISOString().split("T")[0]; // Fecha actual en formato YYYY-MM-DD
+    console.log(`Verificando recomendaciones para el paciente ${pacienteId} y tipo ${tipo} en la fecha ${hoy}`);
+    const recomendacion = await Recomendaciones.findOne({
         paciente: pacienteId,
         tipo,
-        createdAt: { $gte: desde, $lt: hasta },
+        createdAt: { $gte: new Date(`${hoy}T00:00:00Z`), $lt: new Date(`${hoy}T23:59:59Z`) },
     });
+    console.log("Recomendación encontrada:", recomendacion);
+    return !!recomendacion; // Devuelve true si existe una recomendación
 };
 
 const generarRecomendacionesComidas = async (req, res) => {
     try {
         const { pacienteId } = req.params;
 
-        const conteoHoy = await contarRecomendacionesHoy(pacienteId, "comidas");
-        if (conteoHoy >= 3) {
-            return res.status(400).json({ msg: "Ya se han generado 3 recomendaciones de comidas hoy." });
+        // Verificar si ya existe una recomendación de comidas para hoy
+        if (await existeRecomendacionHoy(pacienteId, "comidas")) {
+            return res.status(400).json({ msg: "No puedes generar más recomendaciones de comidas por hoy." });
         }
 
+        // Obtener todas las comidas del paciente, ordenadas por fecha descendente
         const comidas = await Comida.find({ paciente: pacienteId }).sort({ createdAt: -1 });
         if (!comidas.length) {
             return res.status(404).json({ msg: "No se encontraron comidas registradas para este paciente." });
         }
 
+        // Filtrar las comidas del último día registrado
         const ultimoDia = comidas[0].createdAt.toISOString().split("T")[0];
         const comidasUltimoDia = comidas.filter(
             (comida) => comida.createdAt.toISOString().split("T")[0] === ultimoDia
@@ -47,6 +49,7 @@ const generarRecomendacionesComidas = async (req, res) => {
             return res.status(404).json({ msg: "No se encontraron comidas del último día registrado." });
         }
 
+        // Dividir las comidas por tipo
         const desayuno = comidasUltimoDia.filter((comida) => comida.tipoComida.toLowerCase() === "desayuno");
         const almuerzo = comidasUltimoDia.filter((comida) => comida.tipoComida.toLowerCase() === "almuerzo");
         const cena = comidasUltimoDia.filter((comida) => comida.tipoComida.toLowerCase() === "cena");
@@ -69,13 +72,20 @@ const generarRecomendacionesComidas = async (req, res) => {
             return response.choices[0].message.content;
         };
 
+        // Generar recomendaciones para cada tipo de comida
+        const recomendacionesDesayuno = await obtenerRecomendaciones("desayuno", desayuno);
+        const recomendacionesAlmuerzo = await obtenerRecomendaciones("almuerzo", almuerzo);
+        const recomendacionesCena = await obtenerRecomendaciones("cena", cena);
+        const recomendacionesSnacks = await obtenerRecomendaciones("snack", snacks);
+
         const contenido = {
-            desayuno: await obtenerRecomendaciones("desayuno", desayuno),
-            almuerzo: await obtenerRecomendaciones("almuerzo", almuerzo),
-            cena: await obtenerRecomendaciones("cena", cena),
-            snacks: await obtenerRecomendaciones("snack", snacks),
+            desayuno: recomendacionesDesayuno,
+            almuerzo: recomendacionesAlmuerzo,
+            cena: recomendacionesCena,
+            snacks: recomendacionesSnacks,
         };
 
+        // Guardar la recomendación en la base de datos
         const nuevaRecomendacion = await Recomendaciones.create({
             paciente: pacienteId,
             tipo: "comidas",
@@ -84,8 +94,9 @@ const generarRecomendacionesComidas = async (req, res) => {
             tipoRelacionado: "Comida",
         });
 
+        console.log("Recomendación de comidas guardada:", nuevaRecomendacion);
 
-        res.status(200).json({ msg: "Recomendación generada exitosamente." });
+        res.status(200).json({ msg: "Recomendación generada exitosamente."});
     } catch (error) {
         console.error("Error al generar recomendaciones de comidas:", error);
         res.status(500).json({ msg: error.message });
@@ -96,9 +107,9 @@ const generarRecomendacionesParametros = async (req, res) => {
     try {
         const { pacienteId } = req.params;
 
-        const conteoHoy = await contarRecomendacionesHoy(pacienteId, "parametros");
-        if (conteoHoy >= 3) {
-            return res.status(400).json({ msg: "Ya se han generado 3 recomendaciones de parámetros hoy." });
+        // Verificar si ya existe una recomendación de parámetros para hoy
+        if (await existeRecomendacionHoy(pacienteId, "parametros")) {
+            return res.status(400).json({ msg: "No puedes generar más recomendaciones de parámetros por hoy." });
         }
 
         const parametrosSalud = await ParametrosSalud.findOne({ paciente: pacienteId }).sort({ createdAt: -1 });
@@ -109,7 +120,7 @@ const generarRecomendacionesParametros = async (req, res) => {
         const prompt = `
             Analiza los siguientes datos de salud de un paciente y proporciona recomendaciones personalizadas:
             - Últimos parámetros de salud: ${JSON.stringify(parametrosSalud)}
-            Incluye recomendaciones sobre hábitos saludables y posibles mejoras. No me des una respuesta muy larga y evita hablar sobre alimentación.
+            Incluye recomendaciones sobre hábitos saludables y posibles mejoras no me des una respuesta muy larga y nada sobre alimentación.
         `;
 
         const response = await openai.chat.completions.create({
@@ -119,6 +130,7 @@ const generarRecomendacionesParametros = async (req, res) => {
 
         const recomendaciones = response.choices[0].message.content;
 
+        // Guardar la recomendación en la base de datos
         const nuevaRecomendacion = await Recomendaciones.create({
             paciente: pacienteId,
             tipo: "parametros",
@@ -127,30 +139,36 @@ const generarRecomendacionesParametros = async (req, res) => {
             tipoRelacionado: "ParametrosSalud",
         });
 
-        
-        res.status(200).json({ msg: "Recomendación generada exitosamente." });
+        console.log("Recomendación de parámetros guardada:", nuevaRecomendacion);
+
+        res.status(200).json({ msg: "Recomendación generada exitosamente."});
     } catch (error) {
         console.error("Error al generar recomendaciones de parámetros:", error);
         res.status(500).json({ msg: error.message });
     }
 };
-
 const obtenerRecomendaciones = async (req, res) => {
     try {
-        const { pacienteId } = req.params;
-        const { tipo } = req.query;
+        const { pacienteId } = req.params; // ID del paciente
+        const { tipo } = req.query; // Tipo de recomendación (opcional: "comidas" o "parametros")
 
+        // Construir el filtro de búsqueda
         const filtro = { paciente: pacienteId };
-        if (tipo) filtro.tipo = tipo;
+        if (tipo) {
+            filtro.tipo = tipo; // Filtrar por tipo si se proporciona
+        }
 
+        // Buscar las recomendaciones en la base de datos
         const recomendaciones = await Recomendaciones.find(filtro)
-            .sort({ createdAt: -1 })
-            .populate("idsRelacionados");
+            .sort({ createdAt: -1 }) // Ordenar por fecha de creación descendente
+            .populate("idsRelacionados"); // Poblar los datos relacionados (comidas o parámetros)
 
+        // Verificar si se encontraron recomendaciones
         if (!recomendaciones.length) {
             return res.status(404).json({ msg: "No se encontraron recomendaciones para este paciente." });
         }
 
+        // Enviar las recomendaciones al frontend
         res.status(200).json({ recomendaciones });
     } catch (error) {
         console.error("Error al obtener recomendaciones:", error);
@@ -159,7 +177,7 @@ const obtenerRecomendaciones = async (req, res) => {
 };
 
 export {
-    generarRecomendacionesComidas,
-    generarRecomendacionesParametros,
-    obtenerRecomendaciones
+  generarRecomendacionesComidas,
+  generarRecomendacionesParametros,
+  obtenerRecomendaciones,
 };
