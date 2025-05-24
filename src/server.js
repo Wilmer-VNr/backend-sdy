@@ -5,9 +5,9 @@ import cors from 'cors';
 import routerPacientes from './routers/Paciente_routes.js'
 import routerNutricionista from './routers/Nutricionista_routes.js'
 import authRoutes from './routers/Auth_routes.js';
-import router from './routers/Paciente_routes.js';
 import routerComidas from './routers/comida_routes.js';
 import routerParametrosSalud from './routers/parametrosSalud_routes.js';
+import routerRecomendacion from './routers/recomendaciones_routes.js';
 
 // Inicializaciones
 const app = express()
@@ -30,12 +30,13 @@ app.get('/',(req,res)=>{
 app.use('/api',authRoutes)
 app.use('/api',routerPacientes)
 app.use('/api', routerNutricionista)
-app.use('/api', routerComidas)
 // Rutas para parametros de salud
 app.use('/api', routerParametrosSalud)
 
 // Rutas para comidas de pacientes
 app.use('/api', routerComidas)
+
+app.use('/api',routerRecomendacion)
 
 // Manejo de una ruta que no sea encontrada
 app.use((req,res)=>res.status(404).send("Endpoint no encontrado - 404"))

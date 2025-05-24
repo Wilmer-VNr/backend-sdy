@@ -100,7 +100,6 @@ const actualizarPerfil = async (req,res)=>{
     pacienteBDD.celular = celular ?? pacienteBDD.celular
     pacienteBDD.email = email ?? pacienteBDD.email
     await pacienteBDD.save()
-    console.log(pacienteBDD)
     res.status(200).json(pacienteBDD)
 }
 

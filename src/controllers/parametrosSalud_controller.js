@@ -7,7 +7,6 @@ const registrarParametroSalud = async (req,res)=>{
     if( !mongoose.Types.ObjectId.isValid(paciente) ) return res.status(404).json({msg:`Lo sentimos, debe ser un id válido`});
     const nuevoParametro = await ParametroSalud.create(req.body)
     res.status(200).json({msg:`Registro de comida exitosamente ${nuevoParametro._id}`,nuevoParametro})
-    console.log(nuevoParametro);
 }
 const eliminarParametro = async(req,res)=>{
     const {id} = req.params
