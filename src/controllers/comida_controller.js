@@ -7,7 +7,6 @@ const registrarComidas = async (req,res)=>{
     if( !mongoose.Types.ObjectId.isValid(paciente) ) return res.status(404).json({msg:`Lo sentimos, debe ser un id válido`});
     const nuevaComida = await ComidasPaciente.create(req.body)
     res.status(200).json({msg:`Registro de comida exitosamente ${nuevaComida._id}`,nuevaComida})
-    console.log(nuevaComida);
 }
 const eliminarComidas = async(req,res)=>{
     const {id} = req.params

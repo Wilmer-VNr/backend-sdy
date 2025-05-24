@@ -209,7 +209,6 @@ const actualizarPerfil = async (req,res)=>{
     nutricionistaBDD.celular = celular ?? nutricionistaBDD.celular
     nutricionistaBDD.email = email ?? nutricionistaBDD.email
     await nutricionistaBDD.save()
-    console.log(nutricionistaBDD)
     res.status(200).json(nutricionistaBDD)
 }
 
