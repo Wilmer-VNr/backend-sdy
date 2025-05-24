@@ -176,8 +176,4 @@ const obtenerRecomendaciones = async (req, res) => {
     }
 };
 
-export {
-  generarRecomendacionesComidas,
-  generarRecomendacionesParametros,
-  obtenerRecomendaciones,
-};
+export { generarRecomendacionesComidas, generarRecomendacionesParametros, obtenerRecomendaciones };
