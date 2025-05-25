@@ -9,7 +9,7 @@ const server = http.createServer(app)
 
 const io = new Server(server, {
     cors: {
-        origin: ["https://tu-app.vercel.app", "http://localhost:5173"],
+        origin: ["https://frontendsdy.vercel.app/", "http://localhost:5173"],
         methods: ["GET", "POST"],
         credentials: true
     }
