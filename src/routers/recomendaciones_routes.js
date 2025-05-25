@@ -1,5 +1,5 @@
 import express from "express";
-import { generarRecomendacionesComidas,generarRecomendacionesParametros,obtenerRecomendaciones } from "../controllers/recomendaciones_controller.js";
+import { generarRecomendacionesComidas,generarRecomendacionesParametros,obtenerRecomendaciones } from "../controllers/Recomendaciones_controller.js";
 
 const router = express.Router();
 
