@@ -59,10 +59,18 @@ const generarRecomendacionesComidas = async (req, res) => {
             if (!comidas.length) return `No se encontraron comidas para ${tipo}.`;
 
             const prompt = `
-                Analiza las siguientes comidas registradas para ${tipo} y proporciona las calorías de cada una:
-                - Comidas: ${JSON.stringify(comidas)}
-                Solo dame el nombre de la comida y las calorías.
+                Analiza las siguientes comidas registradas para ${tipo} y proporciona una estimación aproximada de las calorías de cada una, 
+                basándote en las preparaciones comunes de la gastronomía ecuatoriana. Asegúrate de identificar el nombre de cada comida 
+                y las calorías aproximadas asociadas con cada una. Si la comida contiene ingredientes como aceites, grasas u otros elementos 
+                adicionales, incluye también las calorías correspondientes a esos ingredientes. Si no puedes determinar con precisión las calorías, 
+                indica que las calorías son aproximadas o basadas en suposiciones comunes, y explica cómo se llegó a esa estimación.
+
+                Comidas: ${JSON.stringify(comidas)}
+
+                Solo dame el nombre de la comida y, si contiene algún ingrediente adicional o extra (como aceites o grasas), incluye también 
+                las calorías aproximadas de esos ingredientes. Si no puedes calcular las calorías, indica que no se puede determinar.
             `;
+
 
             const response = await openai.chat.completions.create({
                 model: "gpt-3.5-turbo",
