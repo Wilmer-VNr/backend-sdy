@@ -28,9 +28,15 @@ const generarRecomendacionesComidas = async (req, res) => {
     try {
         const { pacienteId } = req.params;
 
-        // Verificar si ya existe una recomendación de comidas para hoy
-        if (await existeRecomendacionHoy(pacienteId, "comidas")) {
-            return res.status(400).json({ msg: "No puedes generar más recomendaciones de comidas por hoy." });
+        // Verificar cuántas recomendaciones de comidas ya se han generado hoy
+        const hoy = new Date().toISOString().split("T")[0]; // Fecha actual en formato YYYY-MM-DD
+        const recomendacionesHoy = await Recomendaciones.countDocuments({
+            paciente: pacienteId,
+            tipo: "comidas",
+            createdAt: { $gte: new Date(`${hoy}T00:00:00Z`), $lt: new Date(`${hoy}T23:59:59Z`)},
+        });
+        if (recomendacionesHoy >= 3) {
+            return res.status(400).json({ msg: "Ya has generado el máximo de 3 recomendaciones de comidas para hoy." });
         }
 
         // Obtener todas las comidas del paciente, ordenadas por fecha descendente
@@ -111,6 +117,8 @@ const generarRecomendacionesComidas = async (req, res) => {
     }
 };
 
+
+
 const generarRecomendacionesParametros = async (req, res) => {
     try {
         const { pacienteId } = req.params;
@@ -126,10 +134,21 @@ const generarRecomendacionesParametros = async (req, res) => {
         }
 
         const prompt = `
-            Analiza los siguientes datos de salud de un paciente y proporciona recomendaciones personalizadas:
-            - Últimos parámetros de salud: ${JSON.stringify(parametrosSalud)}
-            Incluye recomendaciones sobre hábitos saludables y posibles mejoras no me des una respuesta muy larga y nada sobre alimentación.
+            Analiza los siguientes datos de salud de un paciente y proporciona recomendaciones personalizadas, sin hacer suposiciones generales. Utiliza un tono empático, directo y comprensivo, enfocándote en mejorar la actividad física, motivación y manejo del estrés. Las sugerencias deben ser realistas y adaptadas a las condiciones del paciente, ya sea que tenga o no una discapacidad o condición médica.
+            Evita recomendaciones sobre alimentación. Las recomendaciones deben ser prácticas, alcanzables y basadas exclusivamente en los datos proporcionados del paciente:
+
+            - Peso: ${parametrosSalud.peso} kg
+            - Estatura: ${parametrosSalud.estatura} cm
+            - Nivel de actividad física: ${parametrosSalud.nivelActividadFisica}
+            - Condiciones de salud: ${parametrosSalud.enfermedad || 'Ninguna registrada'}
+            - Discapacidades: ${parametrosSalud.discapacidad || 'Ninguna registrada'}
+
+            Asegúrate de que las sugerencias sean realistas para su nivel de salud y movilidad.
+            Sé claro, conciso y efectivo, como lo haría un profesional al dar recomendaciones prácticas y realistas para mejorar la calidad de vida del paciente.
         `;
+
+
+
 
         const response = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
@@ -154,7 +173,12 @@ const generarRecomendacionesParametros = async (req, res) => {
         console.error("Error al generar recomendaciones de parámetros:", error);
         res.status(500).json({ msg: error.message });
     }
+
 };
+
+    
+
+
 const obtenerRecomendaciones = async (req, res) => {
     try {
         const { pacienteId } = req.params; // ID del paciente
@@ -184,4 +208,70 @@ const obtenerRecomendaciones = async (req, res) => {
     }
 };
 
-export { generarRecomendacionesComidas, generarRecomendacionesParametros, obtenerRecomendaciones };
+const generarRecetasPersonalizadas = async (req, res) => {
+    try {
+        const { pacienteId } = req.params;
+
+        // Verificar si ya existe una recomendación de recetas para hoy
+        if (await existeRecomendacionHoy(pacienteId, "recetas")) {
+            return res.status(400).json({ msg: "Ya generaste recetas personalizadas hoy." });
+        }
+
+        // Obtener los últimos parámetros de salud del paciente
+        const parametrosSalud = await ParametrosSalud.findOne({ paciente: pacienteId }).sort({ createdAt: -1 });
+        if (!parametrosSalud) {
+            return res.status(404).json({ msg: "No se encontraron parámetros de salud para este paciente." });
+        }
+
+        // Prompt para OpenAI
+        const prompt = `
+Eres un nutricionista especializado en pacientes ecuatorianos. A partir de los siguientes parámetros de salud:
+
+${JSON.stringify(parametrosSalud)}
+
+Genera un plan de recetas saludables personalizadas para desayuno, almuerzo, cena y snack, teniendo en cuenta las condiciones del paciente (peso, IMC, enfermedades, etc.).
+
+- Las recetas deben ser típicas ecuatorianas pero adaptadas para ser saludables.
+- Incluye: nombre de la receta, ingredientes, preparación paso a paso, recomendaciones nutricionales, y por qué es adecuada para el paciente.
+- Usa un formato claro tipo JSON u objeto estructurado por comida.
+
+No incluyas datos inventados del paciente. Usa solo los parámetros proporcionados. Sé preciso, profesional y breve.
+Evita alimentos no recomendados si el paciente tiene sobrepeso, hipertensión, colesterol alto, etc.
+No menciones calorías. Mantén el texto en español neutro y breve.        `;
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: prompt }],
+        });
+
+        const recetasGeneradas = response.choices[0].message.content;
+
+        // Guardar la recomendación como "recetas"
+        const nuevaRecomendacion = await Recomendaciones.create({
+            paciente: pacienteId,
+            tipo: "recetas",
+            contenido: recetasGeneradas,
+            idsRelacionados: [parametrosSalud._id],
+            tipoRelacionado: "ParametrosSalud",
+        });
+
+        console.log("Recetas personalizadas guardadas:", nuevaRecomendacion);
+
+        res.status(200).json({ msg: "Recetas personalizadas generadas exitosamente." });
+
+    } catch (error) {
+        console.error("Error al generar recetas personalizadas:", error);
+        res.status(500).json({ msg: error.message });
+    }
+};
+
+
+
+
+
+export { 
+    generarRecomendacionesComidas, 
+    generarRecomendacionesParametros, 
+    obtenerRecomendaciones,
+    generarRecetasPersonalizadas
+};
