@@ -14,7 +14,7 @@ const pacienteSchema = new Schema({
         trim:true
     },
     edad:{
-        type:String,
+        type:Number,
         require:true,
         trim:true
     },
