@@ -36,7 +36,7 @@ const crearCita = async (req, res) => {
 };
 const confirmarCitaConFecha = async (req, res) => {
     const { id } = req.params;
-    const { fecha } = req.body;
+    const { fecha, linkReunion } = req.body; // Añadir linkReunion
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(404).json({ msg: "ID de cita no válido" });
@@ -47,7 +47,13 @@ const confirmarCitaConFecha = async (req, res) => {
 
     if (!fecha) return res.status(400).json({ msg: "Debes ingresar la fecha y hora de la cita" });
 
+    // Validar que si es virtual, se envíe el link
+    if (cita.modalidad === 'virtual' && !linkReunion) {
+        return res.status(400).json({ msg: "Para citas virtuales es necesario proporcionar el link de la reunión" });
+    }
+
     cita.fecha = fecha;
+    cita.linkReunion = linkReunion; // Guardar el link si existe
     cita.estado = "confirmada";
     await cita.save();
 
@@ -58,10 +64,11 @@ const confirmarCitaConFecha = async (req, res) => {
         fecha,
         modalidad: cita.modalidad,
         descripcion: cita.descripcion,
+        linkReunion: cita.linkReunion, // Pasar el link al template
         citaId: cita._id
     });
 
-    res.status(200).json({ msg: "Cita confirmada con fecha y hora", cita });
+    res.status(200).json({ msg: "Cita confirmada correctamente", cita });
 };
 
 const listarCitasPaciente = async (req, res) => {
@@ -90,6 +97,8 @@ const detalleCita = async (req, res) => {
 
     res.status(200).json(cita)
 }
+
+
 
 const eliminarCita = async (req, res) => {
     const { id } = req.params

@@ -92,13 +92,51 @@ const sendMailToRecoveryPassword = async(userMail,token)=>{
 }
 
 const sendMailToConfirmCita = async (to, data) => {
-    const subject = data.fecha
-        ? "Confirmación de cita agendada"
-        : "Nueva solicitud de cita pendiente de confirmación";
+    let subject, html;
 
-    const html = data.fecha
-        ? `<p>Estimado/a ${data.nombrePaciente}, su cita con el nutricionista ${data.nombreNutricionista} ha sido confirmada para el ${new Date(data.fecha).toLocaleString()}.</p>`
-        : `<p>Estimado/a nutricionista, el paciente ${data.nombrePaciente} ha solicitado una cita. Por favor confirme la fecha y hora desde el sistema.</p>`;
+    if (data.fecha) {
+        // Correo de confirmación al paciente
+        subject = "Confirmación de cita agendada";
+        
+        if (data.modalidad === 'virtual') {
+            html = `
+                <p>Estimado/a ${data.nombrePaciente},</p>
+                <p>Su cita virtual con el nutricionista ${data.nombreNutricionista} ha sido confirmada:</p>
+                <ul>
+                    <li><strong>Fecha y hora:</strong> ${new Date(data.fecha).toLocaleString()}</li>
+                    <li><strong>Enlace de la reunión:</strong> <a href="${data.linkReunion}" target="_blank">${data.linkReunion}</a></li>
+                    <li><strong>Modalidad:</strong> ${data.modalidad}</li>
+                    <li><strong>Motivo:</strong> ${data.descripcion}</li>
+                </ul>
+                <p>Por favor, únase a la reunión a tiempo usando el enlace proporcionado.</p>
+            `;
+        } else {
+            html = `
+                <p>Estimado/a ${data.nombrePaciente},</p>
+                <p>Su cita presencial con el nutricionista ${data.nombreNutricionista} ha sido confirmada:</p>
+                <ul>
+                    <li><strong>Fecha y hora:</strong> ${new Date(data.fecha).toLocaleString()}</li>
+                    <li><strong>Modalidad:</strong> ${data.modalidad}</li>
+                    <li><strong>Motivo:</strong> ${data.descripcion}</li>
+                </ul>
+                <p>Por favor, asista a la consulta puntualmente.</p>
+            `;
+        }
+    } else {
+        // Correo al nutricionista para confirmar cita
+        subject = "Nueva solicitud de cita pendiente de confirmación";
+        html = `
+            <p>Estimado/a nutricionista,</p>
+            <p>El paciente ${data.nombrePaciente} ha solicitado una cita ${data.modalidad}.</p>
+            <p><strong>Detalles:</strong></p>
+            <ul>
+                <li><strong>Modalidad:</strong> ${data.modalidad}</li>
+                <li><strong>Motivo:</strong> ${data.descripcion}</li>
+            </ul>
+            <p>Por favor, ingrese al sistema para confirmar la fecha y hora${data.modalidad === 'virtual' ? ' y proporcionar el enlace de la reunión' : ''}.</p>
+            <a href="${process.env.FRONTEND_URL}/nutricionista/citas/${data.citaId}">Confirmar cita</a>
+        `;
+    }
 
     await transporter.sendMail({
         from: "Sistema Nutricionista <sistema@nutricion.com>",
@@ -107,6 +145,7 @@ const sendMailToConfirmCita = async (to, data) => {
         html
     });
 };
+
 
 
 export {

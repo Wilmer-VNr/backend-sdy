@@ -6,6 +6,8 @@ import { crearTokenJWT } from "../middlewares/JWT.js"
 import mongoose from "mongoose"
 import ParametrosSalud from "../models/ParametrosSalud.js"
 import Comida from "../models/Comida.js"
+import { v2 as cloudinary } from 'cloudinary'
+import fs from "fs-extra"
 
 const registro = async (req,res)=>{
     const {email,password} = req.body

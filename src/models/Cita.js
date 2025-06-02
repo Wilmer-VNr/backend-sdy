@@ -28,6 +28,10 @@ const citaSchema  = new Schema({
         enum: ['pendiente', 'confirmada', 'cancelada', 'completada'],
         default: 'pendiente'
     },
+    linkReunion: {
+        type: String,
+        required: false 
+    }
     
 },{
     timestamps:true
