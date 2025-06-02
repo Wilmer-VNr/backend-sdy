@@ -14,14 +14,18 @@ const registro = async (req,res)=>{
     if(verificarEmailBDD) return res.status(400).json({msg:"Lo sentimos, el email ya se encuentra registrado"})
     const nuevoPaciente = new Paciente(req.body)
     nuevoPaciente.password = await nuevoPaciente.encrypPassword(password)
-
     const token = nuevoPaciente.crearToken()
     await sendMailToRegister(email,token)
+    if(req.files?.imagen){
+        const cloudiResponse = await cloudinary.uploader.upload(req.files.imagen.tempFilePath,{folder:'Pacientes'})
+        nuevoPaciente.avatar = cloudiResponse.secure_url
+        nuevoPaciente.avatarID = cloudiResponse.public_id
+        await fs.unlink(req.files.imagen.tempFilePath)
+    }
     await nuevoPaciente.save()
     res.status(200).json({msg:"Revisa tu correo electrónico para confirmar tu cuenta"})
     
 }
-
 const confirmarMail = async (req,res)=>{
     if(!(req.params.token)) return res.status(400).json({msg:"Lo sentimos, no se puede validar la cuenta"})
     const pacienteBDD = await Paciente.findOne({token:req.params.token})
@@ -160,6 +164,80 @@ const detalleComidasPaciente = async(req,res)=>{
     })
 }
 
+const listarNutricionistas = async (req, res) => {
+    const nutricionistas = await Nutricionista.find({ status: true })
+        .select("-password -token -__v -createdAt -updatedAt ")
+        .lean()
+    res.status(200).json(nutricionistas)
+}
+
+
+
+const actualizarAvatar = async (req, res) => {
+    const { id } = req.params;
+    
+    // Validaciones básicas
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ msg: `Lo sentimos, no existe el paciente ${id}` });
+    }
+
+    if (!req.files?.imagen) {
+        return res.status(400).json({ msg: "No se ha proporcionado ninguna imagen" });
+    }
+
+    try {
+        // Buscar al paciente
+        const paciente = await Paciente.findById(id);
+        if (!paciente) {
+            return res.status(404).json({ msg: "Paciente no encontrado" });
+        }
+
+        // Eliminar imagen anterior si existe
+        if (paciente.avatarID) {
+            await cloudinary.uploader.destroy(paciente.avatarID);
+        }
+
+        // Subir nueva imagen a Cloudinary
+        const cloudiResponse = await cloudinary.uploader.upload(
+            req.files.imagen.tempFilePath, 
+            { folder: 'Pacientes' }
+        );
+
+        // Eliminar archivo temporal
+        await fs.unlink(req.files.imagen.tempFilePath);
+
+        // Actualizar solo los campos del avatar
+        const pacienteActualizado = await Paciente.findByIdAndUpdate(
+            id,
+            {
+                avatar: cloudiResponse.secure_url,
+                avatarID: cloudiResponse.public_id
+            },
+            { new: true }
+        );
+
+        res.status(200).json({ 
+            msg: "Avatar actualizado correctamente",
+            avatar: pacienteActualizado.avatar
+        });
+
+    } catch (error) {
+        console.error("Error en actualizarAvatar:", error);
+        
+        // Manejar errores específicos de Cloudinary
+        if (error.http_code === 401) {
+            return res.status(500).json({ 
+                msg: "Error de autenticación con Cloudinary - Verifica tus credenciales",
+                error: error.message 
+            });
+        }
+
+        res.status(500).json({ 
+            msg: "Error interno del servidor al actualizar el avatar",
+            error: error.message 
+        });
+    }
+};
 
 export {
     registro,
@@ -174,7 +252,9 @@ export {
     detallePaciente,
     eliminarPaciente,
     detalleParametrosPaciente,
-    detalleComidasPaciente
+    detalleComidasPaciente,
+    listarNutricionistas,
+    actualizarAvatar
     
     
 

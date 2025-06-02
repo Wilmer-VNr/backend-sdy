@@ -1,7 +1,8 @@
 import {Router} from 'express'
-import { actualizarPassword, actualizarPerfil, comprobarTokenPasword, confirmarMail, crearNuevoPassword, detalleComidasPaciente, detalleParametrosPaciente, perfil, recuperarPassword, registro } from '../controllers/Paciente_controller.js'
+import { actualizarAvatar, actualizarPassword, actualizarPerfil, comprobarTokenPasword, confirmarMail, crearNuevoPassword, detalleComidasPaciente, detalleParametrosPaciente, perfil, recuperarPassword, registro } from '../controllers/Paciente_controller.js'
 import { verificarTokenJWT } from '../middlewares/JWT.js'
 import { validacionPaciente } from '../middlewares/validacionPaciente.js'
+import { listarCitasNutricionista } from '../controllers/Cita_controller.js'
 const router = Router()
 
 
@@ -14,12 +15,14 @@ router.post('/recuperar-password',recuperarPassword)
 router.get('/recuperar-password/:token',comprobarTokenPasword)
 router.post('/nuevo-password/:token',crearNuevoPassword)
 
-
 // Ruta para ver y actualizar perfil del paciente
-
 router.get('/perfil', verificarTokenJWT, perfil)
 router.put('/paciente/:id',verificarTokenJWT,actualizarPerfil)
 router.put('/paciente/actualizar-password/:id',verificarTokenJWT,actualizarPassword)
 router.get('/paciente/parametro/:id', verificarTokenJWT, detalleParametrosPaciente)
 router.get('/paciente/comidas/:id', verificarTokenJWT, detalleComidasPaciente)
+
+router.get('/listar-nutricionistas', listarCitasNutricionista);
+
+router.put('/paciente/avatar/:id', verificarTokenJWT, actualizarAvatar);
 export default router

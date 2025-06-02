@@ -91,10 +91,26 @@ const sendMailToRecoveryPassword = async(userMail,token)=>{
     
 }
 
+const sendMailToConfirmCita = async (to, data) => {
+    const subject = data.fecha
+        ? "Confirmación de cita agendada"
+        : "Nueva solicitud de cita pendiente de confirmación";
+
+    const html = data.fecha
+        ? `<p>Estimado/a ${data.nombrePaciente}, su cita con el nutricionista ${data.nombreNutricionista} ha sido confirmada para el ${new Date(data.fecha).toLocaleString()}.</p>`
+        : `<p>Estimado/a nutricionista, el paciente ${data.nombrePaciente} ha solicitado una cita. Por favor confirme la fecha y hora desde el sistema.</p>`;
+
+    await transporter.sendMail({
+        from: "Sistema Nutricionista <sistema@nutricion.com>",
+        to,
+        subject,
+        html
+    });
+};
 
 
 export {
     sendMailToRegister,
-    sendMailToRecoveryPassword
+    sendMailToRecoveryPassword,
+    sendMailToConfirmCita
 }
-

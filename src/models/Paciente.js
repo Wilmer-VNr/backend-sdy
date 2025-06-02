@@ -38,6 +38,14 @@ const pacienteSchema = new Schema({
         type:String,
         require:true
     },
+    avatar:{
+        type:String,
+        trim:true
+    },
+    avatarID:{
+        type:String,
+        trim:true
+    },
     status:{
         type:Boolean,
         default:true
