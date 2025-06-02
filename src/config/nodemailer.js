@@ -134,7 +134,7 @@ const sendMailToConfirmCita = async (to, data) => {
                 <li><strong>Motivo:</strong> ${data.descripcion}</li>
             </ul>
             <p>Por favor, ingrese al sistema para confirmar la fecha y hora${data.modalidad === 'virtual' ? ' y proporcionar el enlace de la reunión' : ''}.</p>
-            <a href="${process.env.FRONTEND_URL}/dashboard_Nutri/citas/${data.citaId}">Confirmar cita</a>
+            <a href="${process.env.URL_FRONTEND}dashboard_Nutri/citas/${data.citaId}">Confirmar cita</a>
         `;
     }
 
