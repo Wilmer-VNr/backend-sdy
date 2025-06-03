@@ -19,7 +19,14 @@ dotenv.config()
 
 // Configuraciones 
 app.set('port',process.env.port || 3000)
-app.use(cors())
+app.use(cors({
+    origin: [
+      'http://localhost:5173',            
+      'https://frontendsdy.vercel.app'    
+    ],
+    credentials: true                     
+  }));
+  
 
 // Middlewares 
 app.use(express.json())
