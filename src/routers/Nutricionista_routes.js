@@ -19,6 +19,6 @@ router.put('/perfil-nutricionista/:id',verificarTokenJWT,actualizarPerfil)
 // Nuevas rutas para gestión de pacientes por nutricionistas
 router.get('/listar-pacientes', verificarTokenJWT, listarTodosLosPacientes);
 router.get('/listar-pacientes/:id', verificarTokenJWT, obtenerPacientePorId);
-router.delete('/bloquear-paciente/:id', verificarTokenJWT, bloquearPaciente);
+router.put('/bloquear-paciente/:id', verificarTokenJWT, bloquearPaciente);
 router.put('/nutricionista/actualizar-password/:id',verificarTokenJWT,actualizarPassword)
 export default router
