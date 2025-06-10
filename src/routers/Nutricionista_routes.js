@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import { actualizarPerfil, comprobarTokenPasword, crearNuevoPassword, perfil, recuperarPassword, listarTodosLosPacientes, obtenerPacientePorId, eliminarPaciente, actualizarPassword } from '../controllers/Nutricionista_controller.js'
+import { actualizarPerfil, comprobarTokenPasword, crearNuevoPassword, perfil, recuperarPassword, listarTodosLosPacientes, obtenerPacientePorId, actualizarPassword, bloquearPaciente } from '../controllers/Nutricionista_controller.js'
 import { verificarTokenJWT } from '../middlewares/JWT.js'
 const router = Router()
 
@@ -19,6 +19,6 @@ router.put('/perfil-nutricionista/:id',verificarTokenJWT,actualizarPerfil)
 // Nuevas rutas para gestión de pacientes por nutricionistas
 router.get('/listar-pacientes', verificarTokenJWT, listarTodosLosPacientes);
 router.get('/listar-pacientes/:id', verificarTokenJWT, obtenerPacientePorId);
-router.delete('/eliminar-paciente/:id', verificarTokenJWT, eliminarPaciente);
+router.delete('/bloquear-paciente/:id', verificarTokenJWT, bloquearPaciente);
 router.put('/nutricionista/actualizar-password/:id',verificarTokenJWT,actualizarPassword)
 export default router

@@ -129,7 +129,7 @@ const obtenerPacientePorId = async (req, res) => {
     }
 };
 
-const eliminarPaciente = async (req, res) => {
+const bloquearPaciente = async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -232,7 +232,7 @@ export {
     actualizarPassword,
     listarTodosLosPacientes,
     obtenerPacientePorId,
-    eliminarPaciente
+    bloquearPaciente
 }
 
 

@@ -38,6 +38,14 @@ export const login = async (req, res) => {
                 msg: "Por favor confirma tu email antes de iniciar sesión" 
             });
         }
+         // Verificar si está bloqueado (status false)
+        if (!user.status) {
+                return res.status(403).json({ 
+                    success: false,
+                    msg: `Tu cuenta ha sido desactivada.`
+                });
+        }
+        
 
         // Verificar contraseña
         const isMatch = await user.matchPassword(password);
