@@ -24,19 +24,19 @@ const crearCita = async (req, res) => {
     const nuevaCita = new Cita({ paciente, nutricionista, fecha, modalidad, descripcion });
     await nuevaCita.save();
 
-    // ✅ ENVÍO DE CORREO AL NUTRICIONISTA PARA CONFIRMAR LA CITA
+   
     await sendMailToConfirmCita(existeNutricionista.email, {
         nombrePaciente: `${existePaciente.nombre} ${existePaciente.apellido}`,
         modalidad,
         descripcion,
-        citaId: nuevaCita._id  // Para generar enlace de confirmación
+        citaId: nuevaCita._id 
     });
 
     res.status(200).json({ msg: "Cita solicitada correctamente. El nutricionista confirmará fecha y hora.", cita: nuevaCita });
 };
 const confirmarCitaConFecha = async (req, res) => {
     const { id } = req.params;
-    const { fecha, linkReunion } = req.body; // Añadir linkReunion
+    const { fecha, linkReunion, lugar } = req.body; 
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(404).json({ msg: "ID de cita no válido" });
@@ -47,29 +47,40 @@ const confirmarCitaConFecha = async (req, res) => {
 
     if (!fecha) return res.status(400).json({ msg: "Debes ingresar la fecha y hora de la cita" });
 
-    // Validar que si es virtual, se envíe el link
-    if (cita.modalidad === 'virtual' && !linkReunion) {
-        return res.status(400).json({ msg: "Para citas virtuales es necesario proporcionar el link de la reunión" });
+    // ✅ Validar campos según modalidad
+    if (cita.modalidad === 'virtual') {
+        if (!linkReunion) {
+            return res.status(400).json({ msg: "Para citas virtuales es necesario proporcionar el link de la reunión" });
+        }
+    }
+
+    if (cita.modalidad === 'presencial') {
+        if (!lugar) {
+            return res.status(400).json({ msg: "Para citas presenciales debes indicar el lugar de la cita" });
+        }
+        cita.lugar = lugar;
     }
 
     cita.fecha = fecha;
-    cita.linkReunion = linkReunion; // Guardar el link si existe
+    cita.linkReunion = linkReunion;
     cita.estado = "confirmada";
     await cita.save();
 
-    // ✅ ENVÍO DE CORREO AL PACIENTE CONFIRMANDO LA CITA
+
     await sendMailToConfirmCita(cita.paciente.email, {
         nombrePaciente: cita.paciente.nombre,
         nombreNutricionista: `${cita.nutricionista.nombre} ${cita.nutricionista.apellido}`,
         fecha,
         modalidad: cita.modalidad,
         descripcion: cita.descripcion,
-        linkReunion: cita.linkReunion, // Pasar el link al template
+        linkReunion: cita.linkReunion,
+        lugar: cita.lugar, 
         citaId: cita._id
     });
 
     res.status(200).json({ msg: "Cita confirmada correctamente", cita });
 };
+
 
 const listarCitasPaciente = async (req, res) => {
     const { id } = req.params

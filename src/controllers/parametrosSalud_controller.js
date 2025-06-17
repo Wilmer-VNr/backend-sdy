@@ -16,8 +16,11 @@ const eliminarParametro = async(req,res)=>{
 }
 const verParametroId = async(req,res)=>{
     const {id} = req.params
-    if( !mongoose.Types.ObjectId.isValid(id) ) return res.status(404).json({msg:`Lo sentimos, no existe el parametro`});
-    const parametro = await ParametroSalud.findById(id).populate('paciente','_id nombre')
+    if( !mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({msg:`Lo sentimos, no existe el parametro`});
+    const parametro = await ParametroSalud.findById(id).populate('paciente', '_id nombre');
+    if (!parametro) {
+        return res.status(404).json({ msg: "Parámetro de salud no encontrado" });
+    }
     res.status(200).json(parametro)
 }
 const actualizarParametro = async(req,res)=>{
