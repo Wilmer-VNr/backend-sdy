@@ -33,13 +33,26 @@ export const validacionPaciente = [
     .matches(/^\d{10}$/)
         .withMessage('El número de celular debe tener exactamente 10 dígitos'),
 
-    // Email: obligatorio y válido
+  
     check("email")
-        .exists({ checkFalsy: true })
-            .withMessage('El email es obligatorio')
-        .isEmail()
-            .withMessage('Debe proporcionar un email válido')
-        .normalizeEmail(),
+    .exists({ checkFalsy: true })
+        .withMessage('El email es obligatorio')
+    .isEmail()
+        .withMessage('Debe proporcionar un email válido')
+    .custom((value) => {
+        // Definir dominios válidos
+        const validDomains = ['gmail.com', 'outlook.com', 'hotmail.com'];
+
+        const emailDomain = value.split('@')[1];
+
+        // Verificar si el dominio está en la lista de dominios válidos
+        if (!validDomains.includes(emailDomain)) {
+            throw new Error('El correo electrónico debe ser de Gmail, Outlook o Hotmail');
+        }
+
+        return true;
+    })
+    .normalizeEmail(),
 
     check("password")
         .exists({ checkFalsy: true })
