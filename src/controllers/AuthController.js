@@ -24,7 +24,7 @@ export const login = async (req, res) => {
             user = await Nutricionista.findOne({ email }).select("-__v -token -updatedAt -createdAt");
             rol = "nutricionista";
         }
-        console.log(user);
+
         // Verificar si el usuario existe
         if (!user) {
             return res.status(404).json({ 

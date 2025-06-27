@@ -9,6 +9,6 @@ router.post('/login', login);
 // Rutas de recuperación de contraseña unificadas
 router.post('/recuperar-password',validacionEmail, recuperarPassword);
 router.get('/recuperar-password/:token', comprobarTokenPassword);
-router.post('/recuperar-password/:token',validarNuevoPassword, crearNuevoPassword);
+router.post('/nuevo-password/:token',validarNuevoPassword, crearNuevoPassword);
 
 export default router;
