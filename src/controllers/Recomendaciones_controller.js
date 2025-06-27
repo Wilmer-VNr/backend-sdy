@@ -8,7 +8,7 @@ dotenv.config();
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
-    apiBaseUrl: process.env.OPENAI_API_BASE_URL,
+    apiBaseUrl: process.env.OPENAI_BASE_URL,
 });
 
 // Función para verificar si ya existe una recomendación para hoy
@@ -79,7 +79,7 @@ const generarRecomendacionesComidas = async (req, res) => {
 
 
             const response = await openai.chat.completions.create({
-                model: "gpt-3.5-turbo",
+                model: "gpt-3.5-turbo-0613",
                 messages: [{ role: "user", content: prompt }],
             });
 
@@ -151,7 +151,7 @@ const generarRecomendacionesParametros = async (req, res) => {
 
 
         const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
+            model: "gpt-3.5-turbo-0613",
             messages: [{ role: "user", content: prompt }],
         });
 
@@ -240,7 +240,7 @@ Evita alimentos no recomendados si el paciente tiene sobrepeso, hipertensión, c
 No menciones calorías. Mantén el texto en español neutro y breve.        `;
 
         const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
+            model: "gpt-3.5-turbo-0613",
             messages: [{ role: "user", content: prompt }],
         });
 

@@ -1,26 +1,12 @@
 import { check, validationResult } from 'express-validator';
 
 export const validacionEmail = [
-
+   
    check("email")
     .exists({ checkFalsy: true })
         .withMessage('El email es obligatorio')
     .isEmail()
-        .withMessage('Debe proporcionar un email válido')
-    .custom((value) => {
-        // Definir dominios válidos
-        const validDomains = ['gmail.com', 'outlook.com', 'hotmail.com'];
-
-        const emailDomain = value.split('@')[1];
-
-        // Verificar si el dominio está en la lista de dominios válidos
-        if (!validDomains.includes(emailDomain)) {
-            throw new Error('El correo electrónico debe ser de Gmail, Outlook o Hotmail');
-        }
-
-        return true;
-    })
-    .normalizeEmail(),
+        .withMessage('Debe proporcionar un email válido'),
     
     // Manejo de errores
     (req, res, next) => {
@@ -71,7 +57,7 @@ export const validarNuevoPassword = [
             .withMessage('Debe contener al menos una mayúscula')
         .matches(/(?=.*\d)/)
             .withMessage('Debe contener al menos un número')
-        .matches(/(?=.*[@$!%*?&])/)
+        .matches(/(?=.*[@$!%*?&.])/)
             .withMessage('Debe contener al menos un carácter especial (@$!%*?&)'),
 
 

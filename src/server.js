@@ -48,22 +48,21 @@ app.get('/',(req,res)=>{
     res.send("Server on")
 })
 
+app.use((req, res, next) => {
+  console.log(`Solicitud recibida: ${req.method} ${req.url}`)
+  next()
+})
+
 // Rutas
 app.use('/api',authRoutes)
 app.use('/api',routerPacientes)
 app.use('/api', routerNutricionista)
-// Rutas para parametros de salud
 app.use('/api', routerParametrosSalud)
-
-// Rutas para comidas de pacientes
 app.use('/api', routerComidas)
-
 app.use('/api',routerRecomendacion)
-
 app.use('/api', routerCitas)
 
 // Manejo de una ruta que no sea encontrada
 app.use((req,res)=>res.status(404).send("Endpoint no encontrado - 404"))
-
 
 export default  app

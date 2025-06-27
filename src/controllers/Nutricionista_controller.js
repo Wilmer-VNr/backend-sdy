@@ -1,45 +1,7 @@
 
 import Nutricionista from "../models/Nutricionista.js"
-import {sendMailToRecoveryPassword } from "../config/nodemailer.js"
-import { crearTokenJWT } from "../middlewares/JWT.js"
 import mongoose from "mongoose"
 import Paciente from "../models/Paciente.js";
-
-const recuperarPassword = async(req,res)=>{
-    const {email} = req.body
-    if (Object.values(req.body).includes("")) return res.status(404).json({msg:"Lo sentimos, debes llenar todos los campos"})
-    const nutricionistaBDD = await Nutricionista.findOne({email})
-    if(!nutricionistaBDD) return res.status(404).json({msg:"Lo sentimos, el usuario no se encuentra registrado"})
-    const token = nutricionistaBDD.crearToken()
-    nutricionistaBDD.token=token
-    await sendMailToRecoveryPassword(email,token)
-    await nutricionistaBDD.save()
-    res.status(200).json({msg:"Revisa tu correo electrónico para reestablecer tu cuenta"})
-}
-
-
-const comprobarTokenPasword = async (req,res)=>{
-    if(!(req.params.token)) return res.status(404).json({msg:"Lo sentimos, no se puede validar la cuenta"})
-    const nutricionistaBDD = await Nutricionista.findOne({token:req.params.token})
-    if(nutricionistaBDD?.token !== req.params.token) return res.status(404).json({msg:"Lo sentimos, no se puede validar la cuenta"})
-    await nutricionistaBDD.save()
-    res.status(200).json({msg:"Token confirmado, ya puedes crear tu nuevo password"}) 
-}
-
-
-const crearNuevoPassword = async (req,res)=>{
-    const{password,confirmpassword} = req.body
-    if (Object.values(req.body).includes("")) return res.status(404).json({msg:"Lo sentimos, debes llenar todos los campos"})
-    if(password != confirmpassword) return res.status(404).json({msg:"Lo sentimos, los passwords no coinciden"})
-    const nutricionistaBDD = await Nutricionista.findOne({token:req.params.token})
-    if(nutricionistaBDD?.token !== req.params.token) return res.status(404).json({msg:"Lo sentimos, no se puede validar la cuenta"})
-    nutricionistaBDD.token = null
-    nutricionistaBDD.password = await nutricionistaBDD.encrypPassword(password)
-    await nutricionistaBDD.save()
-    res.status(200).json({msg:"Felicitaciones, ya puedes iniciar sesión con tu nuevo password"}) 
-}
-
-
 
 const perfil =(req,res)=>{
     delete req.nutricionistaBDD.token
@@ -223,10 +185,7 @@ const actualizarPassword = async (req,res)=>{
 }
 
 export {
- 
-    recuperarPassword,
-    comprobarTokenPasword,
-    crearNuevoPassword,
+
     perfil,
     actualizarPerfil,
     actualizarPassword,

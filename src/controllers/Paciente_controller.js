@@ -38,42 +38,6 @@ const confirmarMail = async (req,res)=>{
     res.status(200).json({msg:"Token confirmado, ya puedes iniciar sesión"}) 
 }
 
-
-const recuperarPassword = async(req,res)=>{
-    const {email} = req.body
-    if (Object.values(req.body).includes("")) return res.status(404).json({msg:"Lo sentimos, debes llenar todos los campos"})
-    const pacienteBDD = await Paciente.findOne({email})
-    if(!pacienteBDD) return res.status(404).json({msg:"Lo sentimos, el usuario no se encuentra registrado"})
-    const token = pacienteBDD.crearToken()
-    pacienteBDD.token=token
-    await sendMailToRecoveryPassword(email,token)
-    await pacienteBDD.save()
-    res.status(200).json({msg:"Revisa tu correo electrónico para reestablecer tu cuenta"})
-}
-
-
-const comprobarTokenPasword = async (req,res)=>{
-    if(!(req.params.token)) return res.status(404).json({msg:"Lo sentimos, no se puede validar la cuenta"})
-    const pacienteBDD = await Paciente.findOne({token:req.params.token})
-    if(pacienteBDD?.token !== req.params.token) return res.status(404).json({msg:"Lo sentimos, no se puede validar la cuenta"})
-    await pacienteBDD.save()
-    res.status(200).json({msg:"Token confirmado, ya puedes crear tu nuevo password"}) 
-}
-
-
-const crearNuevoPassword = async (req,res)=>{
-    const{password,confirmpassword} = req.body
-    if (Object.values(req.body).includes("")) return res.status(404).json({msg:"Lo sentimos, debes llenar todos los campos"})
-    if(password != confirmpassword) return res.status(404).json({msg:"Lo sentimos, los passwords no coinciden"})
-    const pacienteBDD = await Paciente.findOne({token:req.params.token})
-    if(pacienteBDD?.token !== req.params.token) return res.status(404).json({msg:"Lo sentimos, no se puede validar la cuenta"})
-    pacienteBDD.token = null
-    pacienteBDD.password = await pacienteBDD.encrypPassword(password)
-    await pacienteBDD.save()
-    res.status(200).json({msg:"Felicitaciones, ya puedes iniciar sesión con tu nuevo password"}) 
-}
-
-
 const perfil =(req,res)=>{
     delete req.pacienteBDD.token
     delete req.pacienteBDD.confirmEmail
@@ -244,9 +208,6 @@ const actualizarAvatar = async (req, res) => {
 export {
     registro,
     confirmarMail,
-    recuperarPassword,
-    comprobarTokenPasword,
-    crearNuevoPassword,
     perfil,
     actualizarPerfil,
     actualizarPassword,

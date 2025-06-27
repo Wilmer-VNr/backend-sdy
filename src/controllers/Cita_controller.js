@@ -10,21 +10,26 @@ const crearCita = async (req, res) => {
     if (!paciente || !nutricionista || !modalidad || !descripcion) {
         return res.status(400).json({ msg: "Lo sentimos, debes llenar todos los campos obligatorios" });
     }
-
     if (!mongoose.Types.ObjectId.isValid(paciente) || !mongoose.Types.ObjectId.isValid(nutricionista)) {
         return res.status(404).json({ msg: "Lo sentimos, IDs no válidos" });
     }
-
     const existePaciente = await Paciente.findById(paciente);
     const existeNutricionista = await Nutricionista.findById(nutricionista);
     if (!existePaciente || !existeNutricionista) {
         return res.status(404).json({ msg: "Lo sentimos, paciente o nutricionista no encontrado" });
     }
+    const citaExistente = await Cita.findOne({
+        paciente,
+        estado: { $in: ['pendiente', 'confirmada'] } 
+    });
+    if (citaExistente) {
+        return res.status(400).json({
+            msg: "Ya tienes una cita activa. Cancela o completa la actual antes de agendar otra."
+        });
+    }
 
     const nuevaCita = new Cita({ paciente, nutricionista, fecha, modalidad, descripcion });
     await nuevaCita.save();
-
-   
     await sendMailToConfirmCita(existeNutricionista.email, {
         nombrePaciente: `${existePaciente.nombre} ${existePaciente.apellido}`,
         modalidad,
@@ -32,14 +37,15 @@ const crearCita = async (req, res) => {
         citaId: nuevaCita._id 
     });
 
-    res.status(200).json({ msg: "Cita solicitada correctamente. El nutricionista confirmará fecha y hora.", cita: nuevaCita });
+    res.status(200).json({ msg: "Cita solicitada correctamente. El nutricionista confirmará lugar, fecha y hora.", cita: nuevaCita });
 };
+
 const confirmarCitaConFecha = async (req, res) => {
     const { id } = req.params;
     const { fecha, linkReunion, lugar } = req.body; 
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(404).json({ msg: "ID de cita no válido" });
+        return res.status(404).json({ msg: "Id de cita no válido" });
     }
 
     const cita = await Cita.findById(id).populate('paciente nutricionista', 'email nombre apellido');
