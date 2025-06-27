@@ -22,7 +22,7 @@ app.set('port',process.env.port || 3000)
 app.use(cors({
     origin: [
       'http://localhost:5173',            
-      'https://frontendsdy.vercel.app'    
+      'https://frontend-skip.vercel.app'    
     ],
     credentials: true                     
   }));
