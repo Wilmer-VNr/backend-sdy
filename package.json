@@ -6,7 +6,19 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "registrar": "node src/controllers/registrar_nutricionista.js"
+    "registrar": "node src/controllers/registrar_nutricionista.js",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "test/controllers": "vitest run tests/unitarias/controllers/",
+    "test/controllers/auth": "vitest run tests/unitarias/controllers/AuthController.test.js",
+    "test/controllers/paciente": "vitest run tests/unitarias/controllers/Paciente_controller.test.js",
+    "test/controllers/nutricionista": "vitest run tests/unitarias/controllers/Nutricionista_controller.test.js",
+    "test/controllers/cita": "vitest run tests/unitarias/controllers/Cita_controller.test.js",
+    "test/controllers/comida": "vitest run tests/unitarias/controllers/comida_controller.test.js",
+    "test/controllers/parametros": "vitest run tests/unitarias/controllers/parametrosSalud_controller.test.js",
+    "test/controllers/recomendaciones": "vitest run tests/unitarias/controllers/Recomendaciones_controller.test.js"
   },
   "keywords": [],
   "author": "",
@@ -27,5 +39,12 @@
     "openai": "^4.103.0",
     "socket.io": "^4.8.1",
     "stripe": "^18.1.0"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^1.0.0",
+    "@vitest/ui": "^1.0.0",
+    "mongodb-memory-server": "^9.1.3",
+    "supertest": "^6.3.3",
+    "vitest": "^1.0.0"
   }
 }
