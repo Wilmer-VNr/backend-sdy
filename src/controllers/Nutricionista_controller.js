@@ -3,6 +3,7 @@ import Nutricionista from "../models/Nutricionista.js"
 import mongoose from "mongoose"
 import Paciente from "../models/Paciente.js";
 
+
 const perfil =(req,res)=>{
     delete req.nutricionistaBDD.token
     delete req.nutricionistaBDD.confirmEmail
@@ -95,15 +96,11 @@ const bloquearPaciente = async (req, res) => {
     const { id } = req.params;
 
     try {
-        // 1. Verificar permisos (solo nutricionistas)
-        if (req.user.rol !== "nutricionista") {
-            return res.status(403).json({
-                success: false,
+        if (req.user.rol !== "nutricionista") {return res.status(403).json({ success: false,
                 msg: "Acceso denegado. Requiere rol de nutricionista"
             });
         }
 
-        // 2. Validar el ID
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
                 success: false,
@@ -111,11 +108,7 @@ const bloquearPaciente = async (req, res) => {
             });
         }
 
-        // 3. Verificar si el paciente existe y está activo
-        const pacienteExistente = await Paciente.findOne({
-            _id: id,
-            status: true
-        });
+        const pacienteExistente = await Paciente.findOne({ _id: id, status: true});
 
         if (!pacienteExistente) {
             return res.status(404).json({
@@ -123,26 +116,23 @@ const bloquearPaciente = async (req, res) => {
                 msg: "Paciente no encontrado"
             });
         }
-
-        // 4. Actualizar el status a false (borrado lógico)
         const pacienteActualizado = await Paciente.findByIdAndUpdate(
             id,
             { status: false },
             { new: true, select: "-password -token -__v -createdAt -updatedAt" }
         );
 
-        // 5. Responder con el resultado
         res.status(200).json({
             success: true,
-            msg: "Paciente eliminado correctamente",
+            msg: "Paciente bloqueado correctamente",
             paciente: pacienteActualizado
         });
 
     } catch (error) {
-        console.error("Error al eliminar paciente:", error);
+        console.error("Error al bloquear paciente:", error);
         res.status(500).json({
             success: false,
-            msg: "Error interno al eliminar paciente",
+            msg: "Error interno al bloquear paciente",
             error: process.env.NODE_ENV === "development" ? error.message : undefined
         });
     }
@@ -185,7 +175,6 @@ const actualizarPassword = async (req,res)=>{
 }
 
 export {
-
     perfil,
     actualizarPerfil,
     actualizarPassword,
@@ -193,5 +182,4 @@ export {
     obtenerPacientePorId,
     bloquearPaciente
 }
-
 
