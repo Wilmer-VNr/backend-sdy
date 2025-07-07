@@ -6,7 +6,8 @@ import {
     detalleCita,
     eliminarCita,
     cancelarCita,
-    confirmarCitaConFecha
+    confirmarCitaConFecha, 
+    finalizarCita
 } from "../controllers/Cita_controller.js"
 import { verificarTokenJWT } from "../middlewares/JWT.js"
 
@@ -22,5 +23,6 @@ router.delete("/eliminar-cita/:id",verificarTokenJWT, eliminarCita)
  
 // Nutricionista
 router.put("/confirmar-cita/:id", verificarTokenJWT, confirmarCitaConFecha);
+router.put("/finalizar-cita/:id", verificarTokenJWT, finalizarCita);
 
 export default router

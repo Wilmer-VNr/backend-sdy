@@ -108,46 +108,41 @@ const listarCitasNutricionista = async (req, res) => {
 const detalleCita = async (req, res) => {
     const { id } = req.params
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({ msg: `ID de cita no válido` })
-
     const cita = await Cita.findById(id).populate('paciente nutricionista', 'nombre apellido email')
     if (!cita) return res.status(404).json({ msg: "Cita no encontrada" })
-
     res.status(200).json(cita)
 }
-
-
 
 const eliminarCita = async (req, res) => {
     const { id } = req.params
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({ msg: `ID no válido` })
-
     const cita = await Cita.findById(id)
     if (!cita) return res.status(404).json({ msg: "Cita no encontrada" })
-
     await cita.deleteOne()
     res.status(200).json({ msg: "Cita eliminada correctamente" })
 }
 
 const cancelarCita = async (req, res) => {
     const { id } = req.params
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(404).json({ msg: "ID de cita no válido" })
-    }
-
+    if (!mongoose.Types.ObjectId.isValid(id)) {return res.status(404).json({ msg: "ID de cita no válido" })}
     const cita = await Cita.findById(id)
     if (!cita) return res.status(404).json({ msg: "Cita no encontrada" })
-
-    if (cita.estado === "cancelada") {
-        return res.status(400).json({ msg: "La cita ya está cancelada" })
-    }
-
+    if (cita.estado === "cancelada") {return res.status(400).json({ msg: "La cita ya está cancelada" })}
     cita.estado = "cancelada"
     await cita.save()
-
     res.status(200).json({ msg: "La cita ha sido cancelada correctamente", cita })
 }
 
+const finalizarCita = async (req, res) => {
+    const { id } = req.params
+    if (!mongoose.Types.ObjectId.isValid(id)) {return res.status(404).json({ msg: "ID de cita no válido" })}
+    const cita = await Cita.findById(id)
+    if (!cita) return res.status(404).json({ msg: "Cita no encontrada" })
+    if (cita.estado === "completada") {return res.status(400).json({ msg: "Cita completada" })}
+    cita.estado = "cancelada"
+    await cita.save()
+    res.status(200).json({ msg: "La cita ha sido completada correctamente", cita })
+}
 
 export {
     crearCita,
@@ -156,5 +151,6 @@ export {
     listarCitasNutricionista,
     detalleCita,
     eliminarCita,
-    cancelarCita
+    cancelarCita,
+    finalizarCita
 }
