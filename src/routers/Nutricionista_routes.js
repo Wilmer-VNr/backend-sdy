@@ -7,7 +7,7 @@ const router = Router()
 
 // Ruta para ver perfil del paciente
 router.get('/perfilNutri', verificarTokenJWT, perfil)
-router.put('/perfil-nutricionista/:id',verificarTokenJWT,validacionPerfil,actualizarPerfil)
+router.put('/perfil-nutricionista/:id',verificarTokenJWT,actualizarPerfil)
 router.put('/nutricionista/actualizar-password/:id',verificarTokenJWT,validarActualizarPassword,actualizarPassword)
 // Nuevas rutas para gestión de pacientes por nutricionistas
 router.get('/listar-pacientes', verificarTokenJWT, listarTodosLosPacientes);
