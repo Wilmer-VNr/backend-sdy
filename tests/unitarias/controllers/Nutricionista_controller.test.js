@@ -284,7 +284,7 @@ describe('Nutricionista_controller', () => {
       expect(mockRes.status).toHaveBeenCalledWith(200)
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
-        msg: 'Paciente eliminado correctamente',
+        msg: 'Paciente bloqueado correctamente',
         paciente: {
           ...paciente,
           status: false

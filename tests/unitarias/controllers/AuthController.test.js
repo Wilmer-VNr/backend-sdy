@@ -43,16 +43,13 @@ describe('AuthController', () => {
         email: 'juan@test.com',
         password: 'password123'
       }
-
       vi.spyOn(Paciente, 'findOne').mockReturnValue({
         select: vi.fn().mockResolvedValue(pacienteData)
       })
       vi.spyOn(Nutricionista, 'findOne').mockReturnValue({
         select: vi.fn().mockResolvedValue(null)
       })
-
       await login(mockReq, mockRes)
-
       expect(mockRes.status).toHaveBeenCalledWith(200)
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
