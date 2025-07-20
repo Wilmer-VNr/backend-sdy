@@ -139,7 +139,7 @@ const finalizarCita = async (req, res) => {
     const cita = await Cita.findById(id)
     if (!cita) return res.status(404).json({ msg: "Cita no encontrada" })
     if (cita.estado === "completada") {return res.status(400).json({ msg: "Cita completada" })}
-    cita.estado = "cancelada"
+    cita.estado = "completada"
     await cita.save()
     res.status(200).json({ msg: "La cita ha sido completada correctamente", cita })
 }
