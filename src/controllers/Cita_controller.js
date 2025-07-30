@@ -2,7 +2,7 @@ import Cita from "../models/Cita.js"
 import Paciente from "../models/Paciente.js"
 import Nutricionista from "../models/Nutricionista.js"
 import mongoose from "mongoose"
-import { sendMailToConfirmCita } from "../config/nodemailer.js";
+import { sendMailToConfirmCita, sendMailToFinalizeCita } from "../config/nodemailer.js";
 
 const crearCita = async (req, res) => {
     const { paciente, nutricionista, fecha, modalidad, descripcion } = req.body;
@@ -136,11 +136,28 @@ const cancelarCita = async (req, res) => {
 const finalizarCita = async (req, res) => {
     const { id } = req.params
     if (!mongoose.Types.ObjectId.isValid(id)) {return res.status(404).json({ msg: "ID de cita no válido" })}
-    const cita = await Cita.findById(id)
+    
+    const cita = await Cita.findById(id).populate('paciente nutricionista', 'nombre apellido email')
     if (!cita) return res.status(404).json({ msg: "Cita no encontrada" })
     if (cita.estado === "completada") {return res.status(400).json({ msg: "Cita completada" })}
+    
     cita.estado = "completada"
     await cita.save()
+    
+    // Enviar correo de confirmación de cita finalizada al paciente
+    try {
+        await sendMailToFinalizeCita(cita.paciente.email, {
+            nombrePaciente: `${cita.paciente.nombre} ${cita.paciente.apellido}`,
+            nombreNutricionista: `${cita.nutricionista.nombre} ${cita.nutricionista.apellido}`,
+            fecha: cita.fecha,
+            modalidad: cita.modalidad,
+            descripcion: cita.descripcion
+        });
+    } catch (error) {
+        console.error("Error al enviar correo de cita finalizada:", error);
+        // No fallamos la operación si el correo falla
+    }
+    
     res.status(200).json({ msg: "La cita ha sido completada correctamente", cita })
 }
 

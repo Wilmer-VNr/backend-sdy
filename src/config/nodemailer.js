@@ -145,11 +145,64 @@ const sendMailToConfirmCita = async (to, data) => {
     });
 };
 
+const sendMailToFinalizeCita = async (to, data) => {
+    const subject = "Cita finalizada - Saludify";
+    
+    const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #2e7d32;">Cita Finalizada ✅</h2>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            
+            <p>Estimado/a ${data.nombrePaciente},</p>
+            <p>Su cita con el nutricionista <strong>${data.nombreNutricionista}</strong> ha sido finalizada exitosamente.</p>
+            
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <h3 style="color: #2e7d32; margin-top: 0;">Detalles de la cita:</h3>
+                <ul style="margin: 10px 0;">
+                    <li><strong>Fecha:</strong> ${new Date(data.fecha).toLocaleDateString('es-ES')}</li>
+                    <li><strong>Hora:</strong> ${new Date(data.fecha).toLocaleTimeString('es-ES')}</li>
+                    <li><strong>Modalidad:</strong> ${data.modalidad}</li>
+                    <li><strong>Motivo:</strong> ${data.descripcion}</li>
+                </ul>
+            </div>
+            
+            <p>Esperamos que la consulta haya sido de gran ayuda para su salud y bienestar.</p>
+            
+            <div style="background-color: #e8f5e8; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <h4 style="color: #2e7d32; margin-top: 0;">Próximos pasos recomendados:</h4>
+                <ul style="margin: 10px 0;">
+                    <li>Revisar las recomendaciones nutricionales proporcionadas</li>
+                    <li>Implementar los cambios sugeridos en su dieta</li>
+                    <li>Programar su próxima cita de seguimiento</li>
+                    <li>Mantener un registro de su progreso en la aplicación</li>
+                </ul>
+            </div>
+            
+            <p>Si tiene alguna pregunta o necesita programar una nueva cita, no dude en contactarnos.</p>
+            
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            
+            <footer style="color: #666; font-size: 14px;">
+                <p>El equipo de Saludify</p>
+                <p>¡Gracias por confiar en nosotros para su salud!</p>
+            </footer>
+        </div>
+    `;
+
+    await transporter.sendMail({
+        from: "Saludify <saludify@gmail.com>",
+        to,
+        subject,
+        html
+    });
+};
+
 
 
 
 export {
     sendMailToRegister,
     sendMailToRecoveryPassword,
-    sendMailToConfirmCita
+    sendMailToConfirmCita,
+    sendMailToFinalizeCita
 }
