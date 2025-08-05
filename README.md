@@ -48,9 +48,13 @@ Sigue estos pasos para instalar las dependencias y ejecutar el proyecto localmen
   USER_MAILTRAP=tu-correo@gmail.com
   PASS_MAILTRAP=tu-contraseña-de-app-gmail
   
-  # URLs del sistema
+  # URLs locales
   URL_BACKEND=http://localhost:3000/api/
   URL_FRONTEND=http://localhost:5173/
+
+  # URLs en producción si es (Render + Vercel)
+  URL_BACKEND=https://tu-backend.onrender.com/api/
+  URL_FRONTEND=https://tu-frontend.vercel.app/
 ```
 
 2. **Inicia el servidor:**
