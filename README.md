@@ -44,6 +44,7 @@ Sigue estos pasos para instalar las dependencias y ejecutar el proyecto localmen
 ```bash
   # Conexión a MongoDB Atlas o clúster de producción
   MONGODB_URI_PRODUCTION=mongodb+srv://usuario:contraseña@cluster.mongodb.net/tu-db
+
   # Configuración SMTP (Mailtrap o Gmail)
   HOST_MAILTRAP=smtp.gmail.com
   PORT_MAILTRAP=465
@@ -54,7 +55,7 @@ Sigue estos pasos para instalar las dependencias y ejecutar el proyecto localmen
   URL_BACKEND=http://localhost:3000/api/
   URL_FRONTEND=http://localhost:5173/
 
-  #Clave del JWT
+  # Clave del JWT
   JWT_SECRET=tu_clave_aleatoria_jwt
 
   # Configuración de Cloudinary (para gestión de imágenes)
@@ -68,8 +69,13 @@ Sigue estos pasos para instalar las dependencias y ejecutar el proyecto localmen
 ```
 
 2. **Inicia el servidor:**
+Para iniciar el proyecto en modo: 
 
+### Desarrollo
 ```bash
   npm run dev
 ```
-
+### Producción
+```bash
+  npm start
+```
