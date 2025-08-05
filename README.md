@@ -42,6 +42,8 @@ Sigue estos pasos para instalar las dependencias y ejecutar el proyecto localmen
 3. **Crea un archivo .env en la raíz del proyecto con las siguientes variables:**
 
 ```bash
+  # Conexión a MongoDB Atlas o clúster de producción
+  MONGODB_URI_PRODUCTION=mongodb+srv://usuario:contraseña@cluster.mongodb.net/tu-db
   # Configuración SMTP (Mailtrap o Gmail)
   HOST_MAILTRAP=smtp.gmail.com
   PORT_MAILTRAP=465
@@ -51,6 +53,18 @@ Sigue estos pasos para instalar las dependencias y ejecutar el proyecto localmen
   # URLs locales
   URL_BACKEND=http://localhost:3000/api/
   URL_FRONTEND=http://localhost:5173/
+
+  #Clave del JWT
+  JWT_SECRET=tu_clave_aleatoria_jwt
+
+  # Configuración de Cloudinary (para gestión de imágenes)
+  CLOUDINARY_CLOUD_NAME=tu-nombre-cloud
+  CLOUDINARY_API_KEY=tu-api-key
+  CLOUDINARY_API_SECRET=tu-api-secret
+
+  # Clave de API de OpenAI (usada para generación de texto, imágenes, etc.)
+  OPENAI_API_KEY=tu-clave-de-openai
+  OPENAI_BASE_URL=https://api.openai.com/v1  # O tu URL personalizada si usas un proxy
 ```
 
 2. **Inicia el servidor:**
