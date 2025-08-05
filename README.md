@@ -68,7 +68,8 @@ Sigue estos pasos para instalar las dependencias y ejecutar el proyecto localmen
   OPENAI_BASE_URL=https://api.openai.com/v1  # O tu URL personalizada si usas un proxy
 ```
 
-2. **Inicia el servidor:**
+4. **Inicia el servidor:**
+   
 Para iniciar el proyecto en modo: 
 
 ### Desarrollo
